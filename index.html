@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Web Socket Servers</title>
+
+	<style>
+		li{
+			text-align: center;
+		}
+		ul{
+			list-style: none;
+		}
+		input{
+			margin: 0 auto;
+		}
+		div{
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<input type="text" id="input">
+	</div>
+	<ul>
+		<li>Start Chat</li>
+	</ul>
+
+	<script>
+		var ws = new WebSocket("ws://localhost:3000");
+
+		var liList = [];
+		var ul = document.querySelector("ul");
+		ws.addEventListener("open", function(evt){
+			console.log("Connected to server");
+		});
+
+		ws.addEventListener("message", function(evt){
+			console.log(evt.data);
+			var li = document.createElement("li");
+			li.innerHTML = evt.data;
+			var split = evt.data.split(" ");
+			split.forEach(function(elem){
+				var l = elem.length;
+				var last3 = elem.charAt(l-3) + elem.charAt(l-2) + elem.charAt(l-1);
+				if(last3 === "png" || last3 === "bmp" || last3 === "jpg" || last3 === "gif"){
+					var img = document.createElement("img");
+					img.setAttribute("src", elem);
+					img.setAttribute("width", "100");
+					img.setAttribute("height", "100");
+					li.appendChild(img);
+			}
+			});
+			
+			liList.push(li);
+			var first = ul.firstChild;
+			ul.insertBefore(li, first);
+		});
+
+		var input_field = document.querySelector("#input");
+
+		input_field.addEventListener("keyup", function(evt){
+			if (evt.keyCode === 13){
+				ws.send(input_field.value);
+				input_field.value = "";
+			}
+		})
+
+	</script>
+</body>
+</html>
