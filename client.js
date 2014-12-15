@@ -1,4 +1,4 @@
-var ws = new WebSocket("ws://localhost:3000");
+var ws = new WebSocket("ws://alex.princesspeach.nyc:3000");
 
 var onlineList = [];
 var liList = [];
