@@ -20,7 +20,7 @@ server.on("connection", function(connection){
 			}else{
 				if(message_obj.type === "color"){
 					user.color = message;
-					var server_msg = {type:"server", msg = "You have changed your font color to " + message};
+					var server_msg = {type:"server", msg: "You have changed your font color to " + message};
 					var j_server_msg = JSON.stringify(server_msg);
 					user.client.send(j_server_msg);
 				}else{
