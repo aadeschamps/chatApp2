@@ -4,60 +4,32 @@
 	<meta charset="UTF-8">
 	<title>Web Socket Servers</title>
 
-		<style>
-		body{
-			width: 800px;
-			margin: 0 auto;
-		}
-		li{
-		}
-		#chat{
-			list-style: none;
-		}
-		#input_div{
-			text-align: center;
-			margin-top: 20px;
-			
-		}
-		#chatroom{
-			width: 80%;
-			height: 800px;
-			float: left;
-			border: 2px solid black;
-			position: relative;
-		}
-		#users{
-			float: right;
-			border: 2px solid black;
-			width: 18%;
-			height: 800px;
-		}
-		h1{
-			font-size: 15px;
-			text-align: center;
-		}
-		#break{
-			height: 2px;
-			background-color: black;
-		}
-		#chat_wrap{
-			padding: 15px;
-			margin: 10px;
-			background-color: beige;
-			border: 2px solid black;
-			height: 700px;
-		}
-	</style>
+	<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow' rel='stylesheet' type='text/css'>
+	
+	<link rel="stylesheet" type="text/css" href="style.css">
+	
 </head>
 <body>
-	<div id="chatroom">
-	<div id="input_div">
-		<input type="text" id="input" placeholder="Enter message here">
+	<div id="total-wrapper">
+	
+	<div id="header_wrap">
+
+			<h1 id="banner_header"> Belly Button Chat </h1>
+			<div id="logo"> <p> Logo</p> </div>
 	</div>
+
+	<div id="chatroom">	
 	<div id="chat_wrap">
 		<ul id="chat">
-			<li>Start Chat</li>
+			<li class="odd">Please enter user name first</li>
+			<li class="even">Start Chat</li>
+
 		</ul>
+	</div>
+	<div id="input_div">
+		<!-- <input type="textarea" id="input" placeholder="Enter message here"> -->
+		<textarea rows="3", cols="50" id="input"></textarea>
+		<button id="send_button">Send</button>
 	</div>
 	</div>
 	<div id="users">
@@ -65,100 +37,8 @@
 		<ul id='current'>
 		</ul>
 	</div>
+	</div>
 
-	<script>
-		var ws = new WebSocket("ws://alex.princesspeach.nyc:3000");
-
-		var onlineList = [];
-		var liList = [];
-		var ul = document.querySelector("#chat");
-		var new_list = document.querySelector("#chatwrap");
-		var input_field = document.querySelector("#input");
-
-		ws.addEventListener("open", function(evt){
-			console.log("Connected to server");
-		});
-
-		ws.addEventListener("message", function(evt){
-			var msg_obj = JSON.parse(evt.data);
-			var type = msg_obj.type;
-			console.log(msg_obj);
-			if(type === "msg"){
-				chatMessages(msg_obj);
-			}else if(type === "add_chat"){
-				addCurrent(msg_obj);
-			}else if(type === "delete"){
-				deleteOffline(msg_obj);
-			}
-		});
-
-
-		var addCurrent = function(message_obj){
-			var ul = document.getElementById("current");
-			var li = document.createElement("li");
-			li.innerHTML = message_obj.name;
-			ul.appendChild(li);
-			onlineList.push(li);
-			li.addEventListener("click", function(){
-				input_field.value = "/w " + message_obj.name + " ";
-			})
-		}
-
-
-		var deleteOffline = function(message_obj){
-			onlineList.forEach(function(names){
-				if(names.innerHTML === message_obj.name){
-					names.remove();
-				}
-			})
-		}
-
-
-		
-		var chatMessages = function(message_obj){
-			var name = message_obj.name
-			var message = message_obj.msg;
-			console.log(message);
-			var li = document.createElement("li");
-			if (message_obj.whisper){
-				inner = name + " whisper: " + message;
-			}else{
-				inner = name + ": " + message;
-			}
-			li.innerHTML = inner;
-			var split = message.split(" ");
-			split.forEach(function(elem){
-				var l = elem.length;
-				var last3 = elem.charAt(l-3) + elem.charAt(l-2) + elem.charAt(l-1);
-				if(last3 === "png" || last3 === "bmp" || last3 === "jpg" || last3 === "gif"){
-					var img = document.createElement("img");
-					img.setAttribute("src", elem);
-					img.setAttribute("width", "100");
-					img.setAttribute("height", "100");
-					li.appendChild(img);
-			}
-			});
-			
-			liList.push(li);
-			var first = ul.firstChild;
-			ul.insertBefore(li, first);
-			var br = document.createElement("div");
-			br.setAttribute("id", "break")
-			ul.insertBefore(br, first);
-		}
-
-
-
-
-		
-		input_field.addEventListener("keyup", function(evt){
-			if (evt.keyCode === 13){
-				ws.send(input_field.value);
-				input_field.value = "";
-			}
-		})
-
-
-	</script>
+	<script src="client.js"></script>
 </body>
 </html>
