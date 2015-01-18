@@ -84,6 +84,11 @@ li{
 	width: 20%;
 	height: 800px;
 	background-color: #265BA9;
+	position: relative;
+}
+#roomChange{
+	margin: 0 auto;
+	position: absolute;
 }
 h1{
 	font-size: 15px;

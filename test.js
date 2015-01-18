@@ -67,7 +67,7 @@ server.on("connection", function(connection){
 	user.client.on("message", function(j_message_obj){
 		var message_obj = JSON.parse(j_message_obj);
 		var message = message_obj.message;
-
+		console.log(message_obj);
 		// sets the user names
 		if(user.hasName === false){
 			user.name = message.trim();
@@ -76,15 +76,16 @@ server.on("connection", function(connection){
 			console.log(user);
 		// accepts and sends messenges	
 		}else{
-			var reg_msg = jsonifyMsg(user.name, message, false);
-			// chatRooms.forEach(function(room){
-			// 	if(room.name === user.room){
-			// 		room.sendMessages(reg_msg);
-			// 	}	
-			// });
-			roomIndex = chatRooms.indexOf(user.room)
-			console.log(roomIndex);
-			chatRooms[roomIndex].sendMessages(reg_msg);
+			if(message_obj.type = "msg"){
+				var reg_msg = jsonifyMsg(user.name, message, false);
+				chatRooms.forEach(function(room){
+					if(room.name === user.room){
+						room.sendMessages(reg_msg);
+					}	
+				});
+			}else if(message_obj.type  = "change room"){
+				changeChatrooms(user, message_obj);
+			}
 		}
 	});
 	

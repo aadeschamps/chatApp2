@@ -6,6 +6,7 @@ var ul = document.querySelector("#chat");
 var new_list = document.querySelector("#chatwrap");
 var input_field = document.querySelector("#input");
 var button = document.querySelector("button");
+var rooms = document.querySelector("#roomList");
 
 ws.addEventListener("open", function(evt){
 	console.log("Connected to server");
@@ -25,6 +26,8 @@ ws.addEventListener("message", function(evt){
 		onlineMsg(msg_obj);
 	}else if(type === "ban" || type === "server"){
 		serverMsg(msg_obj);
+	}else if(type==="addRoom"){
+		addRoom(msg_obj);
 	}
 });
 
@@ -48,6 +51,13 @@ var addCurrent = function(message_obj){
 		input_field.value = "/w " + message_obj.name + " ";
 	})
 }
+
+function addRoom(obj){
+	var rooms = document.querySelector("#roomList");
+	var li = document.createElement("li");
+	li.innerHTML = message_obj.name;
+	rooms.appendChild(li);
+};
 
 
 var deleteOffline = function(message_obj){
