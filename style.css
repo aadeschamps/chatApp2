@@ -14,7 +14,7 @@ linear-gradient(120deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rg
 background-size: 70px 120px;
 }
 #total-wrapper{
-	width: 800px;
+	width: 1000px;
 	margin: 0 auto;
 	font-family: 'PT Sans Narrow', sans-serif;
 }
@@ -71,15 +71,15 @@ li{
 	
 }
 #chatroom{
-	width: 80%;
+	width: 60%;
 	height: 800px;
 	float: left;
 	border: 2px solid black;
 	position: relative;
 	background-color: #265BA9;
 }
-#users{
-	float: right;
+.sides{
+	float: left;
 	border: 2px solid black;
 	width: 20%;
 	height: 800px;

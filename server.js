@@ -1,112 +1,114 @@
+
 var WebSocketServer = require("ws").Server;
 var server = new WebSocketServer({port: 3000});
-var cowsay = require("cowsay");
+var ChatRoom = function(name, admin){
+	this.name = name;
+	this.admin = admin;
+	this.users = [];
+	this.sendMessages = function(msg){
+		this.users.forEach(function(user){
+			j_msg = JSON.stringify(msg);
+			user.send(msg);
+		});
+	};
+	this.enter = function(user_obj){
+		this.users.push(user_obj);
+	};
+	this.leave = function(user_obj){
+		index = this.users.indexOf(user_obj);
+		this.users.splice(index,1);
+	};
 
-var userDb = [];
-var userDbObj = userDb;
-var chatHistory = [];
-var banned_words = ["unctious", "dollop"];
-
-server.on("connection", function(connection){
-	var user = new User(connection);
-	user.client.on("message", function(j_message_obj){
-		var message_obj = JSON.parse(j_message_obj);
-		var message = message_obj.message;
-		if (!user.bannedWords(user, message, banned_words)){
-			// sets the user names
-			if(user.hasName === false){
-				user.comeOnline(userDb, message, chatHistory, user);
-			// accepts and sends messenges	
-			}else{
-				if(message_obj.type === "color"){
-					user.color = message;
-					var server_msg = {type:"server", msg: "You have changed your font color to " + message};
-					var j_server_msg = JSON.stringify(server_msg);
-					user.client.send(j_server_msg);
-				}else{
-					user.sendMsg(userDb, message_obj, user);
-				}
-			}
-		}
-	});
-	connection.on("close", function(){
-		user.goOffline(userDbObj, user);
-	});
-});
-
-
-
-
-// 
-var jsonifyMsg = function(name1, msg1, wh, name2, color){
-	var obj = {type:"msg", name:name1, msg:msg1, whisper: wh, sender:name2, color:color};
-	var j_obj = JSON.stringify(obj);
-	return j_obj;
-
+};
+var User = function(client){
+	this.name = "";
+	this.client = client;
+	this.hasName = false;
+	this.room = "General Chat"
 }
 
 
-var User = function(connObj){
-	this.name = "";
-	this.hasName = false;
-	this.currentChatRoom = 'main';
-	this.color = "black";
-	this.client = connObj;
-	this.bannedCount = 0;
+var general = new ChatRoom("General Chat", "none");
+var userDb = [];
+var userDbObj = userDb;
+var chatHistory = [];
+var chatRooms = [general];
 
-	this.bannedWords = function(user, message, banned_list){
-		var split = message.split(" ");
-		var word_check = false;
-		var words = []
-		banned_list.forEach(function(banned_word){
-			split.forEach(function(word){
-				if(banned_word === word.trim()){
-					console.log("in if");
-					word_check = true;
-				}
-			})
-		})
-		if(word_check){
-			this.bannedCount+= 1;
-		}
-		if(this.bannedCount === 3){
-			var outgoing_msg = {type:"ban", msg:"Disconnected for using banned words too many times"};
-			var j_outgoing_msg = JSON.stringify(outgoing_msg);
-			user.client.send(j_outgoing_msg);
-			user.client.close();
-		}else if(word_check){
-			var outgoing_msg = {type:"ban", msg:"Warning: Strike " + this.bannedCount + 
-			", 3 and your out!"};
-			var j_outgoing_msg = JSON.stringify(outgoing_msg);
-			user.client.send(j_outgoing_msg);
-		}
-		console.log(word_check);
-		return word_check;
-	};
+server.on("connection", function(connection){
+	//connection.send("Connected");
+	//connection.send("Type in your user name:");
+	var user = {
+		name: "",
+		client: connection,
+		hasName: false
+	}
+	// var start_msg = "Please enter user name";
+	// connection.send(jsonifyMsg("Server", start_j_msg, false))
 
-	this.comeOnline = function(userDb, name, chatHistory, user){
-		this.name = name.trim();
-		userDb.forEach(function(users){
-			var add = {type:"add_chat", name:users.name};
-			var j_add = JSON.stringify(add);
-			user.client.send(j_add);
-		});
-		userDb.push(this);
-		var add_msg = {type:"add_msg", name:this.name};
-		var j_add_msg = JSON.stringify(add_msg);
-		var add = {type:"add_chat", name:this.name};
-		var j_add = JSON.stringify(add);
-		userDb.forEach(function(users){
-			users.client.send(j_add);
-			users.client.send(j_add_msg);
-		});
-		chatHistory.forEach( function(history){
+
+	user.client.on("message", function(j_message_obj){
+		var message_obj = JSON.parse(j_message_obj);
+		var message = message_obj.message;
+		// sets the user names
+		if(user.hasName === false){
+			user.name = message.trim();
+			userDb.forEach(function(users){
+				var add = {type:"add_chat", name:users.name};
+				var j_add = JSON.stringify(add);
+				user.client.send(j_add);
+			});
+			userDb.push(user);
+			//console.log(user);
+			var enter_msg = " has entered the chat room";
+			var j_enter_msg = jsonifyMsg(user.name, enter_msg, false);
+			userDb.forEach(function(users){
+				var add = {type:"add_chat", name:user.name};
+				var j_add = JSON.stringify(add);
+				users.client.send(j_add);
+				users.client.send(j_enter_msg);
+			});
+			chatHistory.forEach( function(history){
 				user.client.send(history);
 			});
-		this.hasName = true;
-	}
+			user.hasName = true;
 
-	this.goOffline = function(userDb, user){
+
+		// accepts and sends messenges	
+		}else{
+
+
+			// if the iswhisper is true, only send to name 
+			if( message_obj.whisper ){
+				var j_w_msg = jsonifyMsg(user.name, message_obj.message, true);
+				console.log(userDb);
+				console.log(message_obj.sendTo)
+				userDb.forEach(function(other_users){
+					if(other_users.name === message_obj.sendTo ||
+						other_users.name === user.name){
+						console.log(other_users.name)
+						other_users.client.send(j_w_msg);
+					}
+				});
+			
+
+			// regular default message
+			}else{
+				var reg_msg = jsonifyMsg(user.name, message, false);
+				userDb.forEach(function(other_users){
+					//if(other_users.name != user.name){
+						other_users.client.send(reg_msg);
+					//}
+					chatHistory.push(reg_msg);
+				});
+
+
+
+			}
+		}
+		console.log(message);
+	});
+	
+	connection.on("close", function(){
 		userDb.forEach(function(users){
 			if(users === user){
 				index = userDb.indexOf(users);
@@ -117,34 +119,36 @@ var User = function(connObj){
 			var del = {type:"delete", name:user.name};
 			var j_del = JSON.stringify(del);
 			users.client.send(j_del);
-			var add_msg = {type:"off_msg", name:user.name};
-			var j_add_msg = JSON.stringify(add_msg);
-			users.client.send(j_add_msg);
 		});
-	}
+		
+	});
 
-	this.sendMsg = function(userDb, message_obj, user){
-		var message = message_obj.message;
-		if(message_obj.whisper){
-			var j_w_msg = jsonifyMsg(user.name, message_obj.message, true, "", this.color);
-			
-			// console.log(userDb);
-			// console.log(message_obj.sendTo);
-			userDb.forEach(function(other_users){
-				if(other_users.name === message_obj.sendTo ||
-					other_users.name === user.name){
-					// console.log(other_users.name);
-					other_users.client.send(j_w_msg);
-				}
-			});
-		}else{
-			var reg_msg = jsonifyMsg(user.name, message, false, "", this.color);
-			userDb.forEach(function(other_users){
-				//if(other_users.name != user.name){
-					other_users.client.send(reg_msg);
-				//}
-			});
-			chatHistory.push(reg_msg);
-		}
-	};
+	console.log(userDb);
+});
+
+
+
+
+// 
+var jsonifyMsg = function(name1, msg1, wh, name2){
+	var obj = {type:"msg", name:name1, msg:msg1, whisper: wh, sender:name2};
+	var j_obj = JSON.stringify(obj);
+	return j_obj;
+
 };
+
+function sendRegMessage(msg){
+
+};
+
+
+
+
+
+
+
+
+
+
+
+

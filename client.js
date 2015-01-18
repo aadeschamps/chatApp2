@@ -1,10 +1,11 @@
-var ws = new WebSocket("ws://alex.princesspeach.nyc:3000");
+var ws = new WebSocket("ws://localhost:3000");
 
 var onlineList = [];
 var liList = [];
 var ul = document.querySelector("#chat");
 var new_list = document.querySelector("#chatwrap");
 var input_field = document.querySelector("#input");
+var button = document.querySelector("button");
 
 ws.addEventListener("open", function(evt){
 	console.log("Connected to server");
@@ -36,6 +37,7 @@ var serverMsg = function(message_obj){
 	ul.insertBefore(li, first);
 }
 
+
 var addCurrent = function(message_obj){
 	var ul = document.getElementById("current");
 	var li = document.createElement("li");
@@ -55,6 +57,7 @@ var deleteOffline = function(message_obj){
 		}
 	})
 };
+
 var count = 0;
 
 var onlineMsg = function(message_obj){
@@ -82,6 +85,7 @@ var chatMessages = function(message_obj){
 	var message = message_obj.msg;
 	console.log(message);
 	var li = document.createElement("li");
+	li.style.listStyleImage = message_obj.url;
 	console.log(message_obj.color);
 	li.style.color = message_obj.color;
 	if(count % 2 === 0){
@@ -144,6 +148,18 @@ input_field.addEventListener("keyup", function(evt){
 		ws.send(j_send_obj);
 		input_field.value = "";
 }});
+button.addEventListener("click", function(){
+	var send_obj = new buildSendObj("msg", input_field.value);
+	console.log(send_obj);
+	var new_msg = send_obj.isWhisper(input_field.value);
+	send_obj.isYell(new_msg);
+	send_obj.tableFlip();
+	send_obj.changeColor();
+	var j_send_obj = JSON.stringify(send_obj);
+	console.log(j_send_obj);
+	ws.send(j_send_obj);
+	input_field.value = "";
+});
 
 var buildSendObj = function(type, message){
 	this.type = type;
