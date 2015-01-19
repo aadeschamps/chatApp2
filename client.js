@@ -184,31 +184,23 @@ var chatMessages = function(message_obj){
 // sends message to server from input
 input_field.addEventListener("keyup", function(evt){
 	if (evt.keyCode === 13){
-		var send_obj = new buildSendObj("msg", input_field.value);
-		// console.log(send_obj);
-		var new_msg = send_obj.isWhisper(input_field.value);
-		send_obj.isYell(new_msg);
-		send_obj.tableFlip();
-		send_obj.changeColor();
-		var j_send_obj = JSON.stringify(send_obj);
-		console.log(j_send_obj);
-		ws.send(j_send_obj);
-		input_field.value = "";
+		beforeSendMessage();
 }});
 
 // sends message to server from input
-button.addEventListener("click", function(){
+button.addEventListener("click", beforeSendMessage);
+
+function beforeSendMessage(){
 	var send_obj = new buildSendObj("msg", input_field.value);
-	// console.log(send_obj);
 	var new_msg = send_obj.isWhisper(input_field.value);
 	send_obj.isYell(new_msg);
 	send_obj.tableFlip();
 	send_obj.changeColor();
 	var j_send_obj = JSON.stringify(send_obj);
-	// console.log(j_send_obj);
 	ws.send(j_send_obj);
+	input_field.placeholder = "Enter message here";
 	input_field.value = "";
-});
+}
 
 // sends message to change chat room
 roomInput.addEventListener("keyup", function(evt){
@@ -223,6 +215,7 @@ roomInput.addEventListener("keyup", function(evt){
 		onlineList.forEach(function(names){
 			names.remove();
 		});
+		roomInput.value = "";
 	}
 });
 

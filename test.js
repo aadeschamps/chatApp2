@@ -43,6 +43,8 @@ var ChatRoom = function(name, admin){
 		var hist = {type:"chat list", list: this.chatHist};
 		var j_hist = JSON.stringify(hist);
 		user.client.send(j_hist);
+		var add_room = JSON.stringify({type: "add room", name: this.name});
+		user.client.send(add_room);
 	};
 	this.leave = function(user){
 		index = this.users.indexOf(user);
@@ -147,8 +149,6 @@ function changeChatrooms(user, message){
 		chatRooms.push(newRoom);
 		newRoom.enter(user);
 	}
-	var add_room = JSON.stringify({type: "add room", name: message});
-	user.client.send(add_room);
 };
 
 
