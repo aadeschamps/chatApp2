@@ -141,7 +141,7 @@ var chatMessages = function(message_obj){
 
 
 
-// Message is sent
+// sends message to server from input
 input_field.addEventListener("keyup", function(evt){
 	if (evt.keyCode === 13){
 		var send_obj = new buildSendObj("msg", input_field.value);
@@ -155,6 +155,8 @@ input_field.addEventListener("keyup", function(evt){
 		ws.send(j_send_obj);
 		input_field.value = "";
 }});
+
+// sends message to server from input
 button.addEventListener("click", function(){
 	var send_obj = new buildSendObj("msg", input_field.value);
 	console.log(send_obj);
@@ -167,12 +169,14 @@ button.addEventListener("click", function(){
 	ws.send(j_send_obj);
 	input_field.value = "";
 });
+
+// sends message to change chat room
 roomInput.addEventListener("keyup", function(evt){
 	if(evt.keyCode === 13){
 		var roomName = roomInput.value;
 		var add_obj = {
 			type: "room change",
-			name: roomName
+			message: roomName
 		}
 		var j_add = JSON.stringify(add_obj);
 		ws.send(j_add);

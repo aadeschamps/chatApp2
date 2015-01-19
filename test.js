@@ -79,30 +79,17 @@ server.on("connection", function(connection){
 			user.hasName = true;
 			// console.log(user);
 
-
-		
 		}else{	
 			if(message_obj.type === "msg"){
 				sendRegMessages(message, user);
 			}else if(message_obj.type === "room change"){
-				changeChatrooms(user, message_obj);
+				changeChatrooms(user, message);
 			}
 		}
 	});
 	
+	// event to handle disconnections
 	connection.on("close", function(){
-
-		userDb.forEach(function(users){
-			if(users === user){
-				index = userDb.indexOf(users);
-				userDb.splice(index, 1);
-			}
-		});
-		userDb.forEach(function(users){
-			var del = {type:"delete", name:user.name};
-			var j_del = JSON.stringify(del);
-			users.client.send(j_del);
-		});
 		chatRooms.forEach(function(room){
 			if(room.name === user.room){
 				room.leave(user);
@@ -128,13 +115,31 @@ function sendRegMessages(message, user){
 	chatRooms.forEach(function(room){
 		if(room.name === user.room){
 			room.sendMessages(reg_msg);
-		}	
+		};
 	});
 };
 
 // changes the chat room if the type is room change
-function changeChatrooms(user, chatroom){
-
+function changeChatrooms(user, message){
+	chatRooms.forEach(function(room){
+		if(room.name === user.room){
+			room.leave(user);
+		}	
+	});
+	var exists;
+	chatRooms.forEach(function(room){
+		if(room.name === message){
+			exists = true;
+			room.enter(user);
+		}
+	})
+	if(!exists){
+		var newRoom = new ChatRoom(message, user);
+		chatRooms.push(newRoom);
+		newRoom.enter(user);
+		console.log(newRoom);
+	}
+	console.log(user.room);
 };
 
 
@@ -153,6 +158,19 @@ function changeChatrooms(user, chatroom){
 	msg {type:"msg", name= name, msg="the message"}
 
 	*/
+// userDb.forEach(function(users){
+		// 	if(users === user){
+		// 		index = userDb.indexOf(users);
+		// 		userDb.splice(index, 1);
+		// 	}
+		// });
+		// userDb.forEach(function(users){
+		// 	var del = {type:"delete", name:user.name};
+		// 	var j_del = JSON.stringify(del);
+		// 	users.client.send(j_del);
+		// });
+
+
 
 /* Useless Code
 
