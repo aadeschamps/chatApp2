@@ -7,6 +7,7 @@ var new_list = document.querySelector("#chatwrap");
 var input_field = document.querySelector("#input");
 var button = document.querySelector("button");
 var rooms = document.querySelector("#roomList");
+var roomInput = document.querySelector("#roomChange");
 
 ws.addEventListener("open", function(evt){
 	console.log("Connected to server");
@@ -93,10 +94,8 @@ var onlineMsg = function(message_obj){
 var chatMessages = function(message_obj){
 	var name = message_obj.name
 	var message = message_obj.msg;
-	console.log(message);
 	var li = document.createElement("li");
 	li.style.listStyleImage = message_obj.url;
-	console.log(message_obj.color);
 	li.style.color = message_obj.color;
 	if(count % 2 === 0){
 		li.setAttribute("class","even");
@@ -114,8 +113,6 @@ var chatMessages = function(message_obj){
 			link_test[index] = replacement;
 		}
 	});
-	console.log(link_test);
-	console.log(message);
 	message = link_test.join(" ");
 
 	if (message_obj.whisper){
@@ -169,6 +166,17 @@ button.addEventListener("click", function(){
 	console.log(j_send_obj);
 	ws.send(j_send_obj);
 	input_field.value = "";
+});
+roomInput.addEventListener("keyup", function(evt){
+	if(evt.keyCode === 13){
+		var roomName = roomInput.value;
+		var add_obj = {
+			type: "room change",
+			name: roomName
+		}
+		var j_add = JSON.stringify(add_obj);
+		ws.send(j_add);
+	}
 });
 
 var buildSendObj = function(type, message){

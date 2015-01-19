@@ -49,6 +49,7 @@ server.on("connection", function(connection){
 	user.client.on("message", function(j_message_obj){
 		var message_obj = JSON.parse(j_message_obj);
 		var message = message_obj.message;
+		console.log(message_obj);
 		// sets the user names
 		if(user.hasName === false){
 			user.name = message.trim();

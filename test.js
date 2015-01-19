@@ -64,26 +64,27 @@ var chatRooms = [general];
 
 server.on("connection", function(connection){
 	var user = new User(connection);
+
+	// event for when user sends msg to server
 	user.client.on("message", function(j_message_obj){
 		var message_obj = JSON.parse(j_message_obj);
 		var message = message_obj.message;
 		console.log(message_obj);
+
+
 		// sets the user names
 		if(user.hasName === false){
 			user.name = message.trim();
 			chatRooms[0].enter(user);
 			user.hasName = true;
-			console.log(user);
-		// accepts and sends messenges	
-		}else{
-			if(message_obj.type = "msg"){
-				var reg_msg = jsonifyMsg(user.name, message, false);
-				chatRooms.forEach(function(room){
-					if(room.name === user.room){
-						room.sendMessages(reg_msg);
-					}	
-				});
-			}else if(message_obj.type  = "change room"){
+			// console.log(user);
+
+
+		
+		}else{	
+			if(message_obj.type === "msg"){
+				sendRegMessages(message, user);
+			}else if(message_obj.type === "room change"){
 				changeChatrooms(user, message_obj);
 			}
 		}
@@ -104,12 +105,10 @@ server.on("connection", function(connection){
 		});
 		chatRooms.forEach(function(room){
 			if(room.name === user.room){
-				room.sendMessages(reg_msg);
+				room.leave(user);
 			}	
 		});
 	});
-
-	console.log(userDb);
 });
 
 
@@ -123,10 +122,17 @@ var jsonifyMsg = function(name1, msg1, wh, name2){
 
 };
 
-function sendRegMessages(messages, user){
-
+// sends regular messages to same chat room
+function sendRegMessages(message, user){
+	var reg_msg = jsonifyMsg(user.name, message, false);
+	chatRooms.forEach(function(room){
+		if(room.name === user.room){
+			room.sendMessages(reg_msg);
+		}	
+	});
 };
 
+// changes the chat room if the type is room change
 function changeChatrooms(user, chatroom){
 
 };
