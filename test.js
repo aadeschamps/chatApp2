@@ -17,9 +17,9 @@ var ChatRoom = function(name, admin){
 	this.chatHist = [];
 	this.sendMessages = function(msg){
 		this.users.forEach(function(user){
-			j_msg = JSON.stringify(msg);
 			user.client.send(msg);
 		});
+		this.chatHist.push(JSON.parse(msg));
 	};
 	this.enter = function(user){
 		// sends "add everyone" to current client
@@ -40,6 +40,9 @@ var ChatRoom = function(name, admin){
 			var j_add = JSON.stringify(add);
 			clients.client.send(j_add);
 		});
+		var hist = {type:"chat list", list: this.chatHist};
+		var j_hist = JSON.stringify(hist);
+		user.client.send(j_hist);
 	};
 	this.leave = function(user){
 		index = this.users.indexOf(user);
@@ -82,7 +85,6 @@ server.on("connection", function(connection){
 			user.name = message.trim();
 			chatRooms[0].enter(user);
 			user.hasName = true;
-			// console.log(user);
 
 		}else{	
 			// determines what to do with the message
@@ -144,7 +146,6 @@ function changeChatrooms(user, message){
 		var newRoom = new ChatRoom(message, user);
 		chatRooms.push(newRoom);
 		newRoom.enter(user);
-		console.log(newRoom);
 	}
 	var add_room = JSON.stringify({type: "add room", name: message});
 	user.client.send(add_room);
