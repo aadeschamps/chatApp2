@@ -202,7 +202,7 @@ function beforeSendMessage(){
 	send_obj.changeColor();
 	var j_send_obj = JSON.stringify(send_obj);
 	ws.send(j_send_obj);
-	input_field.placeholder = "Enter message here";
+	input_field.placeholder = "Send a message...";
 	input_field.value = "";
 }
 
