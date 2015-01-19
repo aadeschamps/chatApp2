@@ -1,6 +1,7 @@
 var ws = new WebSocket("ws://localhost:3000");
 
 var onlineList = [];
+var allRooms = [];
 var liList = [];
 var ul = document.querySelector("#chat");
 var new_list = document.querySelector("#chatwrap");
@@ -27,7 +28,7 @@ ws.addEventListener("message", function(evt){
 		onlineMsg(msg_obj);
 	}else if(type === "ban" || type === "server"){
 		serverMsg(msg_obj);
-	}else if(type==="addRoom"){
+	}else if(type==="add room"){
 		addRoom(msg_obj);
 	}
 });
@@ -53,11 +54,36 @@ var addCurrent = function(message_obj){
 	})
 }
 
-function addRoom(obj){
-	var rooms = document.querySelector("#roomList");
-	var li = document.createElement("li");
-	li.innerHTML = message_obj.name;
-	rooms.appendChild(li);
+function addRoom(message_obj){
+	// checks to see if room is already in list
+	var exist = false;
+	allRooms.forEach(function(room){
+		if(room.innerHTML ===  message_obj.name){
+			exist = true;
+		}
+	});
+	if(!exist){
+		// if it doesnt exist, creates an li with room name
+		var rooms = document.querySelector("#roomList");
+		var li = document.createElement("li");
+		li.innerHTML = message_obj.name;
+		rooms.appendChild(li);
+		allRooms.push(li);
+		// adds click function to send person to room
+		li.addEventListener("click", function(){
+			// this.style.color = "orange";
+			var roomName = li.innerHTML;
+			var add_obj = {
+				type: "room change",
+				message: roomName
+			}
+			var j_add = JSON.stringify(add_obj);
+			ws.send(j_add);
+			onlineList.forEach(function(names){
+				names.remove();
+			});
+		});
+	}
 };
 
 
@@ -180,6 +206,9 @@ roomInput.addEventListener("keyup", function(evt){
 		}
 		var j_add = JSON.stringify(add_obj);
 		ws.send(j_add);
+		onlineList.forEach(function(names){
+			names.remove();
+		});
 	}
 });
 

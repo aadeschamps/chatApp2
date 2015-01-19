@@ -44,6 +44,11 @@ var ChatRoom = function(name, admin){
 	this.leave = function(user){
 		index = this.users.indexOf(user);
 		this.users.splice(index,1);
+		var remove = {type: "delete", name: user.name}
+		var j_remove = JSON.stringify(remove);
+		this.users.forEach(function(clients){
+			clients.client.send(j_remove);
+		});
 	};
 
 };
@@ -80,6 +85,8 @@ server.on("connection", function(connection){
 			// console.log(user);
 
 		}else{	
+			// determines what to do with the message
+			// depending on type
 			if(message_obj.type === "msg"){
 				sendRegMessages(message, user);
 			}else if(message_obj.type === "room change"){
@@ -139,7 +146,8 @@ function changeChatrooms(user, message){
 		newRoom.enter(user);
 		console.log(newRoom);
 	}
-	console.log(user.room);
+	var add_room = JSON.stringify({type: "add room", name: message});
+	user.client.send(add_room);
 };
 
 
