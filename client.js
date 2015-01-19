@@ -73,6 +73,9 @@ function addRoom(message_obj){
 	allRooms.forEach(function(room){
 		if(room.innerHTML ===  message_obj.name){
 			exist = true;
+			room.style.color = "orange";
+		}else{
+			room.style.color = "black";
 		}
 	});
 	if(!exist){
@@ -80,11 +83,12 @@ function addRoom(message_obj){
 		var rooms = document.querySelector("#roomList");
 		var li = document.createElement("li");
 		li.innerHTML = message_obj.name;
+		li.style.color = "orange";
 		rooms.appendChild(li);
 		allRooms.push(li);
 		// adds click function to send person to room
 		li.addEventListener("click", function(){
-			// this.style.color = "orange";
+			
 			var roomName = li.innerHTML;
 			var add_obj = {
 				type: "room change",
