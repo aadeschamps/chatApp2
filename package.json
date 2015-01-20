@@ -5,7 +5,10 @@
   "main": "server.js",
   "dependencies": {
     "ws": "~0.6.3",
-    "moment": "~2.8.4"
+    "moment": "~2.8.4",
+    "express": "~4.11.0",
+    "ejs": "~2.1.4",
+    "body-parser": "~1.10.1"
   },
   "devDependencies": {},
   "scripts": {
